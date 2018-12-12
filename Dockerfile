@@ -12,7 +12,8 @@ RUN echo '<marquee>Hello From Arsys!</marquee>' \
 
 EXPOSE 80
 
-VOLUME ["/arsys-data"]
+COPY ./sayhello.sh /
+RUN chmod o+x ./sayhello.sh
 
-USER pako
+CMD ["./sayhello.sh"]
 
