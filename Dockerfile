@@ -10,4 +10,5 @@ RUN echo '<marquee>Hello From Arsys!</marquee>' \
 
 EXPOSE 80
 
-CMD ["nginx","-g","daemon off;"]
+ENTRYPOINT ["nginx","-g","daemon off;"]
+CMD ["-h"]
