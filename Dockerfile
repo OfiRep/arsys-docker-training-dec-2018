@@ -10,4 +10,4 @@ RUN echo '<marquee>Hello From Arsys!</marquee>' \
 
 EXPOSE 80
 
-WORKDIR /etc
+ENV DATABASE_IP=192.168.1.4
