@@ -8,6 +8,6 @@ RUN apt-get install nginx -y
 RUN echo '<marquee>Hello From Arsys!</marquee>' \
     > /var/www/html/index.html
 
-RUN pwd
-
 EXPOSE 80
+
+CMD ["nginx","-g","daemon off;"]
