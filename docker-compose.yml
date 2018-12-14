@@ -1,0 +1,93 @@
+version: '3.7'
+
+services:
+  webapp1:
+    image: nginx
+    restart: always
+    networks:
+      customer_3:
+
+  arsys_nginx_reverse_proxy:
+    build:
+      context: ./arsys-nginx-reverse-proxy
+    image: localhost:8444/arsys/nginx-reverse-proxy:1.0.0
+    ports:
+      - "80:80"
+    restart: always
+    networks:
+      customer_1:
+      customer_2:
+      customer_3:
+
+  wordpress_1:
+    image: wordpress:5-php7.2
+    restart: always
+    #ports:
+    #  - "8080:80"
+    environment:
+      - "WORDPRESS_DB_HOST=mariadb_1"
+      - "WORDPRESS_DB_USER=example"
+      - "WORDPRESS_DB_PASSWORD=example"
+      - "WORDPRESS_DB_NAME=example"
+    networks:
+      customer_1:
+
+  wordpress_2:
+    image: wordpress:5-php7.2
+    restart: always
+    #ports:
+    #  - "8080:80"
+    environment:
+      - "WORDPRESS_DB_HOST=mariadb_2"
+      - "WORDPRESS_DB_USER=example"
+      - "WORDPRESS_DB_PASSWORD=example"
+      - "WORDPRESS_DB_NAME=example"
+    networks:
+      customer_2:
+
+  mariadb_1:
+    image: mariadb:5.5.61
+    restart: always
+    environment:
+      - "MYSQL_DATABASE=example"
+      - "MYSQL_USER=example"
+      - "MYSQL_PASSWORD=example"
+      - "MYSQL_ROOT_PASSWORD=12345"
+    networks:
+      customer_1:
+
+  mariadb_2:
+    image: mariadb:5.5.61
+    restart: always
+    environment:
+      - "MYSQL_DATABASE=example"
+      - "MYSQL_USER=example"
+      - "MYSQL_PASSWORD=example"
+      - "MYSQL_ROOT_PASSWORD=12345"
+    networks:
+      customer_2:
+
+networks:
+  customer_1:
+    name: customer_1
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 173.18.0.1/24
+
+  customer_2:
+    name: customer_2
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 173.19.0.1/24
+
+  customer_3:
+    name: customer_3
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 173.20.0.1/24
