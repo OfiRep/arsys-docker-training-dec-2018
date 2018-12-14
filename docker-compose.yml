@@ -6,11 +6,34 @@ services:
     restart: always
     networks:
       customer_3:
+    container_name: webapp1
+    extra_hosts:
+      - "pako:127.0.0.1"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.port=80"
+      - "traefik.domain=juanito-remake.com"
+      - "traefik.docker.network=customer_3"
+      - "traefik.backend=webapp1"
+      - "traefik.backend.loadbalancer.stickiness=true"
+      - "traefik.frontend.passHostHeader=true"
+      - "traefik.frontend.rule=Host:app1.juanito-remake.com"
+      - "traefik.frontend.auth.basic.users=admin:$$apr1$$0RdX/RB3$$vc6h0PRWZmSb2C7LJ78ER/"
 
-  arsys_nginx_reverse_proxy:
+  arsys_traefik_reverse_proxy:
     build:
-      context: ./arsys-nginx-reverse-proxy
-    image: localhost:8444/arsys/nginx-reverse-proxy:1.0.0
+      context: ./arsys-traefik
+    image: localhost:8444/arsys/traefik-reverse-proxy:1.0.0
+    command:
+      - "--api=true"
+      - "--api.entrypoint=traefik"
+      - "--api.dashboard=true"
+      - "--ping"
+      - "--docker"
+      - "--docker.watch"
+      - "--docker.exposedbydefault=false"
+      - "--docker.domain=juanito-remake.com"
+      - "--logLevel=DEBUG"
     ports:
       - "80:80"
     restart: always
@@ -18,6 +41,19 @@ services:
       customer_1:
       customer_2:
       customer_3:
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    labels:
+      - "traefik.enable=true"
+      - "traefik.port=8080"
+      - "traefik.domain=juanito-remake.com"
+      - "traefik.docker.network=customer_1"
+      - "traefik.backend=arsys_traefik_reverse_proxy"
+      - "traefik.backend.loadbalancer.stickiness=true"
+      - "traefik.frontend.passHostHeader=true"
+      - "traefik.frontend.rule=Host:traefik.juanito-remake.com"
+    depends_on:
+      - webapp1
 
   wordpress_1:
     image: wordpress:5-php7.2
@@ -31,6 +67,15 @@ services:
       - "WORDPRESS_DB_NAME=example"
     networks:
       customer_1:
+    labels:
+      - "traefik.enable=true"
+      - "traefik.port=80"
+      - "traefik.domain=juanito-remake.com"
+      - "traefik.docker.network=customer_1"
+      - "traefik.backend=wordpress_1"
+      - "traefik.backend.loadbalancer.stickiness=true"
+      - "traefik.frontend.passHostHeader=true"
+      - "traefik.frontend.rule=Host:wordpress.juanito-remake.com"
 
   wordpress_2:
     image: wordpress:5-php7.2
